@@ -6,6 +6,15 @@ public class ComfortManager : MonoBehaviour
     [Header("UI Panels")]
     public RectTransform leftPanel;
     public RectTransform rightPanel;
+    
+    public RectTransform leftSmallPanel;
+    public RectTransform rightSmallPanel;
+    
+    private Vector2 leftSmallStartPos;
+    private Vector2 rightSmallStartPos;
+
+    public Image leftImage;   // EKLENDİ
+    public Image rightImage;  // EKLENDİ
 
     [Header("Comfort Points")]
     [Range(0, 100)] public float leftComfort = 100f;
@@ -19,11 +28,16 @@ public class ComfortManager : MonoBehaviour
         RectTransform parentRect = leftPanel.parent.GetComponent<RectTransform>();
         totalWidth = parentRect.rect.width;
         panelHeight = parentRect.rect.height;
+
+        leftSmallStartPos = leftSmallPanel.anchoredPosition;
+        rightSmallStartPos = rightSmallPanel.anchoredPosition;
     }
 
     void Update()
     {
         UpdatePanels();
+        UpdateFlashing(leftImage, leftComfort);   // EKLENDİ
+        UpdateFlashing(rightImage, rightComfort); // EKLENDİ
         Testing();
     }
 
@@ -39,7 +53,6 @@ public class ComfortManager : MonoBehaviour
             rightComfort = Mathf.Max(0, rightComfort - stressPoints);
             leftComfort = leftComfort + stressPoints;
         }
-            
     }
 
     void UpdatePanels()
@@ -57,18 +70,38 @@ public class ComfortManager : MonoBehaviour
         // Apply right panel
         rightPanel.sizeDelta = new Vector2(rightWidth, panelHeight);
         rightPanel.anchoredPosition = new Vector2(totalWidth / 2f - rightWidth / 2f, 0f);
+        
+        // Sol panelin büyüme/daralma farkı
+        float leftDelta = leftPanel.rect.width - (totalWidth / 2f);
+        leftSmallPanel.anchoredPosition = leftSmallStartPos + new Vector2(leftDelta, 0f);
+
+        // Sağ panelin büyüme/daralma farkı
+        float rightDelta = rightPanel.rect.width - (totalWidth / 2f);
+        rightSmallPanel.anchoredPosition = rightSmallStartPos - new Vector2(rightDelta, 0f);
     }
 
+    void UpdateFlashing(Image panelImage, float comfort) // EKLENDİ
+    {
+        if (comfort >= 100f)
+        {
+            panelImage.color = new Color(panelImage.color.r, panelImage.color.g, panelImage.color.b, 1f);
+            return;
+        }
+
+        float flashSpeed = Mathf.Lerp(0.5f, 5f, 0.7f - comfort / 100f); // comfort düşükse hız artar
+        float alpha = Mathf.PingPong(Time.time * flashSpeed, 1f);
+        panelImage.color = new Color(panelImage.color.r, panelImage.color.g, panelImage.color.b, alpha);
+    }
 
     void Testing()
     {
         if (Input.GetKeyDown("a"))
         {
-            ApplyStress("left",10f);
-        } 
+            ApplyStress("left", 10f);
+        }
         if (Input.GetKeyDown("d"))
         {
-            ApplyStress("right",10f);
+            ApplyStress("right", 10f);
         }
     }
 }
