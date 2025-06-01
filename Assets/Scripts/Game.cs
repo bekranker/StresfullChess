@@ -18,11 +18,13 @@ public class Game : MonoBehaviour
     
     public int calmWhite = 100;
     public int calmBlack = 100;
+    
 
 
     // Start is called before the first frame update
     void Start()
     {
+        
         playerWhite = new GameObject[] {Create("white_rook", 0, 0), Create("white_knight", 1, 0),
         Create("white_king", 4, 0), Create("white_bishop", 2, 0), Create("white_queen", 3, 0),
         Create("white_rook", 7, 0), Create("white_knight", 6, 0), Create("white_bishop", 5, 0),
@@ -143,6 +145,7 @@ public class Game : MonoBehaviour
 
         foreach (GameObject enemy in playerBlack)
         {
+            
             if (enemy == null) continue;
             List<Vector2Int> threats = GetThreats(enemy);
             foreach (Vector2Int threat in threats)

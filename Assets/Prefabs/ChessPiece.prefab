@@ -120,7 +120,7 @@ MonoBehaviour:
   white_rook: {fileID: -3071765949806699640, guid: 14c1240eeab7f5747b2861e3d4292764, type: 3}
   white_pawn: {fileID: 6937027248060722800, guid: 3fe5e939a7a103242b1c55da12f39008, type: 3}
   stressText: {fileID: 4323845280946155073}
-  stress: 0
+  stress: 24
   baseValue: 1
 --- !u!61 &1664206046956843815
 BoxCollider2D:
