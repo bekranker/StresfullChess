@@ -12,8 +12,8 @@ public class ComfortManager : MonoBehaviour
     public RectTransform bottomSmallPanel;
 
     [Header("Comfort Points")]
-    [Range(0, 100)] public float topComfort = 50;
-    [Range(0, 100)] public float bottomComfort = 50;
+    [Range(0, 150)] public float topComfort = 75;
+    [Range(0, 150)] public float bottomComfort = 75;
 
     private float totalHeight;
     private float panelWidth;
@@ -73,12 +73,12 @@ public class ComfortManager : MonoBehaviour
         if (side == "top")
         {
             topComfort = Mathf.Max(0, topComfort - stressPoints);
-            bottomComfort = Mathf.Min(100, bottomComfort + stressPoints);
+            bottomComfort = Mathf.Min(150, bottomComfort + stressPoints);
         }
         else if (side == "bottom")
         {
             bottomComfort = Mathf.Max(0, bottomComfort - stressPoints);
-            topComfort = Mathf.Min(100, topComfort + stressPoints);
+            topComfort = Mathf.Min(150, topComfort + stressPoints);
         }
     }
 
@@ -96,7 +96,7 @@ public class ComfortManager : MonoBehaviour
 
     void UpdateFlashing(Image panelImage, float comfort)
     {
-        if (comfort >= 50f)
+        if (comfort >= 75f)
         {
             // Flash efektini kapat, tam görünürlükte tut
             panelImage.color = new Color(panelImage.color.r, panelImage.color.g, panelImage.color.b, 1f);
@@ -104,7 +104,7 @@ public class ComfortManager : MonoBehaviour
         }
 
         // comfort < 50 olduğunda yanıp sönme başlar
-        float flashSpeed = Mathf.Lerp(0.5f, 5f, (50f - comfort) / 50f); // 0 → yavaş, 50 → hızlı
+        float flashSpeed = Mathf.Lerp(0.5f, 5f, (75f - comfort) / 75f); // 0 → yavaş, 50 → hızlı
         float alpha = Mathf.PingPong(Time.time * flashSpeed, 1f);
         panelImage.color = new Color(panelImage.color.r, panelImage.color.g, panelImage.color.b, alpha);
     }

@@ -4,9 +4,9 @@ using UnityEngine;
 
 public class MovePlate : MonoBehaviour
 {
-    public GameObject controller;
+    [SerializeField] private Game _gameScript;
 
-    GameObject reference = null;
+    Chessman reference = null;
 
     int matrixX;
     int matrixY;
@@ -15,7 +15,7 @@ public class MovePlate : MonoBehaviour
 
     public void Start()
     {
-        if(attack)
+        if (attack)
         {
             gameObject.GetComponent<SpriteRenderer>().color = new Color(1.0f, 0.0f, 0.0f, 1.0f);
         }
@@ -23,58 +23,54 @@ public class MovePlate : MonoBehaviour
 
     public void OnMouseUp()
     {
-        controller = GameObject.FindGameObjectWithTag("GameController");
-
-        Game gameScript = controller.GetComponent<Game>();
-
         if (attack)
         {
-            GameObject cp = gameScript.GetPosition(matrixX, matrixY);
+            Chessman cp = _gameScript.GetPosition(matrixX, matrixY);
 
             // Eğer rakip şah yeniyorsa hemen bitir
-            if (cp.name == "white_king") gameScript.Winner("black");
-            if (cp.name == "black_king") gameScript.Winner("white");
+            if (cp.name == "white_king") _gameScript.Winner("black");
+            if (cp.name == "black_king") _gameScript.Winner("white");
 
             // Calm (sakinlik kasası) sistemi üzerinden hesaplama yap
-            gameScript.PieceCaptured(cp);
+            _gameScript.PieceCaptured(cp);
 
             Destroy(cp);
         }
 
         // Eski konumu boşalt
-        gameScript.SetPositionsEmpty(
-            reference.GetComponent<Chessman>().GetXboard(),
-            reference.GetComponent<Chessman>().GetYboard()
+        _gameScript.SetPositionsEmpty(
+            reference.GetXboard(),
+            reference.GetYboard()
         );
 
         // Yeni konumu güncelle
-        reference.GetComponent<Chessman>().SetXBoard(matrixX);
-        reference.GetComponent<Chessman>().SetYBoard(matrixY);
-        reference.GetComponent<Chessman>().SetCoords();
+        reference.SetXBoard(matrixX);
+        reference.SetYBoard(matrixY);
+        reference.SetCoords();
 
         // Yeni pozisyonu kaydet
-        gameScript.SetPosition(reference);
+        _gameScript.SetPosition(reference);
 
         // Sıra değiştir + stres hesapla
-        gameScript.NextTurn();
-        gameScript.CalculateStress(); // Eğer NextTurn içinde çağrılmadıysa buraya eklersin
+        _gameScript.NextTurn();
+        _gameScript.CalculateStress(); // Eğer NextTurn içinde çağrılmadıysa buraya eklersin
 
         // Tüm hareket karelerini sil
-        reference.GetComponent<Chessman>().DestroyMovePlates();
+        reference.DestroyMovePlates();
     }
 
     public void SetCoords(int x, int y)
     {
         matrixX = x;
         matrixY = y;
-    }    
-
-    public void SetReference(GameObject obj)
-    {
-        reference = obj;
     }
 
-    public GameObject GetReference()
+    public void SetReference(Chessman cm)
+    {
+        reference = cm;
+    }
+
+    public Chessman GetReference()
     {
         return reference;
     }

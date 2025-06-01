@@ -4,15 +4,21 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
+
 public class Game : MonoBehaviour
 {
+    [Header("DOTween Props")]
+    [SerializeField] private float _duration = 0.2f;
+
+
+
     [Header("Chess Piece Props")]
     [SerializeField] private Transform _parent;
     public GameObject chesspiece;
 
-    private GameObject[,] positions = new GameObject[8, 8];
-    private GameObject[] playerBlack = new GameObject[16];
-    private GameObject[] playerWhite = new GameObject[16];
+    private Chessman[,] positions = new Chessman[8, 8];
+    private Chessman[] playerBlack = new Chessman[16];
+    private Chessman[] playerWhite = new Chessman[16];
 
     private string currentPlayer = "white";
 
@@ -22,45 +28,48 @@ public class Game : MonoBehaviour
     public int calmBlack = 100;
 
 
-
     // Start is called before the first frame update
-    void Start()
+    IEnumerator Start()
     {
-
-        playerWhite = new GameObject[] {Create("white_rook", 0, 0), Create("white_knight", 1, 0),
-        Create("white_king", 4, 0), Create("white_bishop", 2, 0), Create("white_queen", 3, 0),
-        Create("white_rook", 7, 0), Create("white_knight", 6, 0), Create("white_bishop", 5, 0),
+        playerWhite = new Chessman[] {
         Create("white_pawn", 0, 1), Create("white_pawn", 1, 1), Create("white_pawn", 2, 1),
-        Create("white_pawn", 5, 1), Create("white_pawn", 4, 1), Create("white_pawn", 3, 1),
-        Create("white_pawn", 6, 1), Create("white_pawn", 7, 1)};
+        Create("white_pawn", 3, 1), Create("white_pawn", 4, 1), Create("white_pawn", 5, 1),
+        Create("white_pawn", 6, 1), Create("white_pawn", 7, 1),
+        Create("white_rook", 0, 0), Create("white_rook", 7, 0),
+        Create("white_bishop", 2, 0), Create("white_bishop", 5, 0),
+        Create("white_knight", 1, 0), Create("white_knight", 6, 0),
+        Create("white_king", 4, 0), Create("white_queen", 3, 0)};
 
-        playerBlack = new GameObject[] {Create("black_rook", 0, 7), Create("black_knight", 1, 7),
-        Create("black_king", 4, 7), Create("black_bishop", 2, 7), Create("black_queen", 3, 7),
-        Create("black_rook", 7, 7), Create("black_knight", 6, 7), Create("black_bishop", 5, 7),
+        playerBlack = new Chessman[] {
         Create("black_pawn", 0, 6), Create("black_pawn", 1, 6), Create("black_pawn", 2, 6),
-        Create("black_pawn", 5, 6), Create("black_pawn", 4, 6), Create("black_pawn", 3, 6),
-        Create("black_pawn", 6, 6), Create("black_pawn", 7, 6)};
+        Create("black_pawn", 3, 6), Create("black_pawn", 4, 6), Create("black_pawn", 5, 6),
+        Create("black_pawn", 6, 6), Create("black_pawn", 7, 6),
+        Create("black_rook", 0, 7), Create("black_rook", 7, 7),
+        Create("black_bishop", 2, 7), Create("black_bishop", 5, 7),
+        Create("black_knight", 1, 7), Create("black_knight", 6, 7),
+        Create("black_king", 4, 7), Create("black_queen", 3, 7)};
 
         for (int i = 0; i < playerBlack.Length; i++)
         {
             SetPosition(playerBlack[i]);
             SetPosition(playerWhite[i]);
+            yield return new WaitForSeconds(_duration);
         }
     }
 
-    public GameObject Create(string name, int x, int y)
+    public Chessman Create(string name, int x, int y)
     {
-        GameObject obj = Instantiate(chesspiece, new Vector3(0, 0, -1), Quaternion.identity);
-        Chessman cm = obj.GetComponent<Chessman>();
+        Chessman cm = Instantiate(chesspiece, new Vector3(0, 0, -1), Quaternion.identity).GetComponent<Chessman>();
         cm.InitChessMan(Resources.Load<ChessPieceData>("Scriptables/ChessPieces/" + name), x, y, name, this, _parent);
-        return obj;
+        return cm;
     }
 
-    public void SetPosition(GameObject obj)
+    public void SetPosition(Chessman cm)
     {
-        Chessman cm = obj.GetComponent<Chessman>();
-
-        positions[cm.GetXboard(), cm.GetYboard()] = obj;
+        if (cm == null) return;
+        cm.EnableSprite();
+        cm.PunchSprite();
+        positions[cm.GetXboard(), cm.GetYboard()] = cm;
     }
 
     public void SetPositionsEmpty(int x, int y)
@@ -68,7 +77,7 @@ public class Game : MonoBehaviour
         positions[x, y] = null;
     }
 
-    public GameObject GetPosition(int x, int y)
+    public Chessman GetPosition(int x, int y)
     {
         return positions[x, y];
     }
@@ -124,40 +133,39 @@ public class Game : MonoBehaviour
     public void CalculateStress()
     {
         // Önce tüm taşların stresini sıfırla
-        foreach (GameObject piece in playerWhite)
-            if (piece != null) piece.GetComponent<Chessman>().Stress = 0;
-        foreach (GameObject piece in playerBlack)
-            if (piece != null) piece.GetComponent<Chessman>().Stress = 0;
+        foreach (Chessman piece in playerWhite)
+            if (piece != null) piece.Stress = 0;
+        foreach (Chessman piece in playerBlack)
+            if (piece != null) piece.Stress = 0;
 
         // Her taş, diğer oyuncunun tüm taşları tarafından tehdit ediliyor mu kontrol et
-        foreach (GameObject enemy in playerWhite)
+        foreach (Chessman enemy in playerWhite)
         {
             if (enemy == null) continue;
             List<Vector2Int> threats = GetThreats(enemy);
             foreach (Vector2Int threat in threats)
             {
-                GameObject target = GetPosition(threat.x, threat.y);
+                Chessman target = GetPosition(threat.x, threat.y);
                 if (target != null && target.GetComponent<Chessman>().player != "white")
                     target.GetComponent<Chessman>().Stress += 1;
             }
         }
 
-        foreach (GameObject enemy in playerBlack)
+        foreach (Chessman enemy in playerBlack)
         {
 
             if (enemy == null) continue;
             List<Vector2Int> threats = GetThreats(enemy);
             foreach (Vector2Int threat in threats)
             {
-                GameObject target = GetPosition(threat.x, threat.y);
-                if (target != null && target.GetComponent<Chessman>().player != "black")
-                    target.GetComponent<Chessman>().Stress += 1;
+                Chessman target = GetPosition(threat.x, threat.y);
+                if (target != null && target.player != "black")
+                    target.Stress += 1;
             }
         }
     }
-    public List<Vector2Int> GetThreats(GameObject piece)
+    public List<Vector2Int> GetThreats(Chessman cm)
     {
-        Chessman cm = piece.GetComponent<Chessman>();
         List<Vector2Int> threatList = new List<Vector2Int>();
 
         int x = cm.GetXboard();
@@ -231,11 +239,10 @@ public class Game : MonoBehaviour
         }
         return result;
     }
-    public void PieceCaptured(GameObject captured)
+    public void PieceCaptured(Chessman cm)
     {
-        if (captured == null) return;
+        if (cm == null) return;
 
-        Chessman cm = captured.GetComponent<Chessman>();
         int loss = cm.BaseValue + cm.Stress;
 
         if (cm.player == "white")

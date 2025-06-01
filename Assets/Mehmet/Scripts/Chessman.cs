@@ -3,7 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
-
+using DG.Tweening;
 
 public class Chessman : MonoBehaviour
 {
@@ -28,6 +28,7 @@ public class Chessman : MonoBehaviour
 
     public void InitChessMan(ChessPieceData data, int x, int y, string name, Game game, Transform boardParent = null)
     {
+        DisableSprite();
         transform.SetParent(boardParent);
         controller = game;
         Data = data;
@@ -35,7 +36,11 @@ public class Chessman : MonoBehaviour
         SetYBoard(y);
         gameObject.name = name;
         Activate();
+        PunchSprite();
     }
+    public void EnableSprite() => _spriteRenderer.enabled = true;
+    public void DisableSprite() => _spriteRenderer.enabled = false;
+    public Tween PunchSprite() => _spriteRenderer.transform.DOPunchScale(Vector2.one * .2f, .1f);
     public void Activate()
     {
         SetCoords();
@@ -194,13 +199,13 @@ public class Chessman : MonoBehaviour
         Game sc = controller.GetComponent<Game>();
         if (sc.PositionOnBoard(x, y))
         {
-            GameObject cp = sc.GetPosition(x, y);
+            Chessman cp = sc.GetPosition(x, y);
 
             if (cp == null)
             {
                 MovePlateSpawn(x, y);
             }
-            else if (cp.GetComponent<Chessman>().player != player)
+            else if (cp.player != player)
             {
                 MovePlateAttackSpawn(x, y);
             }
@@ -241,7 +246,7 @@ public class Chessman : MonoBehaviour
         GameObject mp = Instantiate(movePlate, new Vector3(x, y, -3.0f), Quaternion.identity);
 
         MovePlate mpScript = mp.GetComponent<MovePlate>();
-        mpScript.SetReference(gameObject);
+        mpScript.SetReference(this);
         mpScript.SetCoords(matrixX, matrixY);
     }
 
@@ -257,7 +262,7 @@ public class Chessman : MonoBehaviour
 
         MovePlate mpScript = mp.GetComponent<MovePlate>();
         mpScript.attack = true;
-        mpScript.SetReference(gameObject);
+        mpScript.SetReference(this);
         mpScript.SetCoords(matrixX, matrixY);
     }
     // Eklenen değişkenler

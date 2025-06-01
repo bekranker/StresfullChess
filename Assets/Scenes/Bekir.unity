@@ -1085,8 +1085,8 @@ MonoBehaviour:
   bottomPanel: {fileID: 1177574777}
   topSmallPanel: {fileID: 1211487649}
   bottomSmallPanel: {fileID: 306285539}
-  topComfort: 50
-  bottomComfort: 50
+  topComfort: 75
+  bottomComfort: 75
   upImage: {fileID: 1177574778}
   downImage: {fileID: 2068644545}
 --- !u!1 &1606879900
