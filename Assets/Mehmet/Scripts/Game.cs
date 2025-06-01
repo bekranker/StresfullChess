@@ -3,13 +3,14 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
-
+using DG.Tweening;
 
 public class Game : MonoBehaviour
 {
     [Header("DOTween Props")]
     [SerializeField] private float _duration = 0.2f;
-    [SerializeField] private float _boradSpawnIntervalDuration = 0.2f;
+    [SerializeField] private float _boardSpawnIntervalDuration = 0.2f;
+    [SerializeField] private float _boardPunchScale = 0.2f;
 
 
 
@@ -17,6 +18,7 @@ public class Game : MonoBehaviour
     [SerializeField] private GameObject _boardPrefab;
     [SerializeField] private Color _whiteColor;
     [SerializeField] private Color _blackColor;
+    [SerializeField] private Transform _boardCenter;
 
 
     [Header("Chess Piece Props")]
@@ -37,22 +39,25 @@ public class Game : MonoBehaviour
 
     public IEnumerator Start()
     {
-        bool color = true;
-        for (int i = 0; i < 64; i++)
-        {
+        Vector2 tileSize = _boardPrefab.transform.localScale;
+        float totalWidth = 8 * tileSize.x;
+        float totalHeight = 8 * tileSize.y;
 
-            if (color)
+        Vector3 bottomLeft = _boardCenter.position - new Vector3(totalWidth / 2f, totalHeight / 2f, 0);
+
+        for (int y = 0; y < 8; y++)
+        {
+            for (int x = 0; x < 8; x++)
             {
-                _boardPrefab.GetComponent<SpriteRenderer>().color = _whiteColor;
+                GameObject tile = Instantiate(_boardPrefab, Vector3.zero, Quaternion.identity);
+                Vector3 position = bottomLeft + new Vector3(x * tileSize.x, y * tileSize.y, 0);
+                tile.transform.position = position;
+
+                bool isWhite = (x + y) % 2 == 0;
+                tile.GetComponent<SpriteRenderer>().color = isWhite ? _whiteColor : _blackColor;
+                tile.transform.DOPunchScale(Vector2.one * _boardPunchScale, _duration);
+                yield return new WaitForSeconds(_boardSpawnIntervalDuration);
             }
-            else
-            {
-                _boardPrefab.GetComponent<SpriteRenderer>().color = _blackColor;
-            }
-            color = !color;
-            GameObject tile = Instantiate(_boardPrefab, new Vector3(0, 0, 0), Quaternion.identity);
-            tile.transform.position = new Vector3((i % 8) * _boardPrefab.transform.localScale.x, (i / 8) * _boardPrefab.transform.localScale.y, 0);
-            yield return new WaitForSeconds(_boradSpawnIntervalDuration);
         }
 
 

@@ -40,7 +40,12 @@ public class Chessman : MonoBehaviour
     }
     public void EnableSprite() => _spriteRenderer.enabled = true;
     public void DisableSprite() => _spriteRenderer.enabled = false;
-    public Tween PunchSprite() => _spriteRenderer.transform.DOPunchScale(Vector2.one * .2f, .1f);
+    public Tween PunchSprite()
+    {
+        DOTween.Kill(_spriteRenderer.transform);
+        _spriteRenderer.transform.localScale = Vector2.one;
+        return _spriteRenderer.transform.DOPunchScale(Vector2.one * .2f, .1f);
+    }
     public void Activate()
     {
         SetCoords();
@@ -62,7 +67,7 @@ public class Chessman : MonoBehaviour
         float x = xBoard * tileSpacing + boardOffset.x;
         float y = yBoard * tileSpacing + boardOffset.y;
 
-        this.transform.position = new Vector3(x, y, -1.0f);
+        transform.localPosition = new Vector3(x, y, 0);
     }
 
     public int GetXboard()
