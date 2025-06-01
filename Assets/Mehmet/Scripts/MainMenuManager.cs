@@ -4,7 +4,7 @@ using UnityEngine.SceneManagement;
 public class MainMenuManager : MonoBehaviour
 {
     public GameObject howToPlayPanel;
-
+    public GameObject creatorPanel;
     void Start()
     {
         howToPlayPanel.SetActive(false); // Başlangıçta kapalı
@@ -25,6 +25,11 @@ public class MainMenuManager : MonoBehaviour
         Debug.Log("Oyundan çıkılıyor...");
         Application.Quit();
     }
+    
+    public void Creator()
+    {
+        creatorPanel.SetActive(true); // Paneli aç
+    }
 
     void Update()
     {
@@ -32,6 +37,13 @@ public class MainMenuManager : MonoBehaviour
         if (howToPlayPanel.activeSelf && Input.GetMouseButtonDown(0))
         {
             howToPlayPanel.SetActive(false);
+            
+        }
+        
+        if (creatorPanel.activeSelf && Input.GetMouseButtonDown(0))
+        {
+            creatorPanel.SetActive(false);
+            
         }
     }
 }
