@@ -15,6 +15,7 @@ public class MovePlate : MonoBehaviour
 
     public void Start()
     {
+        _gameScript = FindObjectsByType<Game>(FindObjectsSortMode.None)[0];
         if (attack)
         {
             gameObject.GetComponent<SpriteRenderer>().color = new Color(1.0f, 0.0f, 0.0f, 1.0f);
@@ -39,15 +40,15 @@ public class MovePlate : MonoBehaviour
             string side = cp.player == "white" ? "top" : "bottom";
 
             // Debug log
-            Debug.Log($"[{side.ToUpper()} tarafı] {stress} stres kaybetti, rakibe geçti.");
+            Debug.Log($"[{side.ToUpper()} tarafi] {stress} stres kaybetti, rakibe geçti.");
 
-            FindObjectOfType<ComfortManager>().ApplyStress(side, stress);
+            FindAnyObjectByType<ComfortManager>().ApplyStress(side, stress);
 
             Destroy(cp);
         }
 
         // Eski konumu boşalt
-             _gameScript.SetPositionsEmpty(
+        _gameScript.SetPositionsEmpty(
             reference.GetXboard(),
             reference.GetYboard()
         );

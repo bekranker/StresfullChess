@@ -29,7 +29,7 @@ public class Chessman : MonoBehaviour
     public void InitChessMan(ChessPieceData data, int x, int y, string name, Game game, Transform boardParent = null)
     {
         DisableSprite();
-        transform.SetParent(boardParent);
+        //transform.SetParent(boardParent);
         controller = game;
         Data = data;
         SetXBoard(x);
@@ -92,10 +92,9 @@ public class Chessman : MonoBehaviour
 
     private void OnMouseUp()
     {
-        if (!controller.GetComponent<Game>().IsGameOver() && controller.GetComponent<Game>().GetCurrentPlayer() == player)
+        if (!controller.IsGameOver() && controller.GetCurrentPlayer() == player)
         {
             DestroyMovePlates();
-
             InitiateMovePlates();
         }
     }
@@ -111,7 +110,7 @@ public class Chessman : MonoBehaviour
 
     public void InitiateMovePlates()
     {
-        switch (this.name)
+        switch (name)
         {
             case "black_queen":
             case "white_queen":
@@ -201,10 +200,9 @@ public class Chessman : MonoBehaviour
 
     public void PointMovePlate(int x, int y)
     {
-        Game sc = controller.GetComponent<Game>();
-        if (sc.PositionOnBoard(x, y))
+        if (controller.PositionOnBoard(x, y))
         {
-            Chessman cp = sc.GetPosition(x, y);
+            Chessman cp = controller.GetPosition(x, y);
 
             if (cp == null)
             {

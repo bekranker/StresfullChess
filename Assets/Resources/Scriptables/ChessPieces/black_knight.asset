@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3c4aadcbb60fb4a4cab12d7a0d28085f, type: 3}
   m_Name: black_knight
   m_EditorClassIdentifier: 
-  PieceSprite: {fileID: -3775465140927854673, guid: 2bf499cf55c51d74ba61de77cfba354d, type: 3}
+  PieceSprite: {fileID: 598535868768087949, guid: 574729c326f23c2499c99f70aba02f09, type: 3}
   StressAmount: 0
   BaseAmount: 0
   movementPattern: []
