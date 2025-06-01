@@ -1,3 +1,5 @@
+using DG.Tweening;
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -14,9 +16,16 @@ public class ComfortManager : MonoBehaviour
     [Header("Comfort Points")]
     [Range(0, 150)] public float topComfort = 75;
     [Range(0, 150)] public float bottomComfort = 75;
+    
+    [Header("Winner UI")]
+    public RectTransform winnerPanel;
+    public TextMeshProUGUI winnerText;
+    public float winnerPanelDuration = 0.8f;
 
     private float totalHeight;
     private float panelWidth;
+    
+    bool gameEnded = false;
 
     private Vector2 topSmallStartPos;
     private Vector2 bottomSmallStartPos;
@@ -40,7 +49,24 @@ public class ComfortManager : MonoBehaviour
         UpdatePanels();
         UpdateFlashing(upImage, bottomComfort);   // EKLENDİ
         UpdateFlashing(downImage, topComfort); // EKLENDİ
+        CheckForWinner(); // EKLENDİ
         Testing();
+    }
+    
+    void CheckForWinner()
+    {
+        if (gameEnded) return;
+
+        if (topComfort <= 0f)
+        {
+            ShowWinner("Bottom");
+            gameEnded = true;
+        }
+        else if (bottomComfort <= 0f)
+        {
+            ShowWinner("Top");
+            gameEnded = true;
+        }
     }
 
     void UpdatePanels()
@@ -86,11 +112,11 @@ public class ComfortManager : MonoBehaviour
     {
         if (Input.GetKeyDown("w"))
         {
-            ApplyStress("top", 10f);
+            ApplyStress("top", 35f);
         }
         if (Input.GetKeyDown("s"))
         {
-            ApplyStress("bottom", 10f);
+            ApplyStress("bottom", 35f);
         }
     }
 
@@ -107,5 +133,26 @@ public class ComfortManager : MonoBehaviour
         float flashSpeed = Mathf.Lerp(0.5f, 5f, (75f - comfort) / 75f); // 0 → yavaş, 50 → hızlı
         float alpha = Mathf.PingPong(Time.time * flashSpeed, 1f);
         panelImage.color = new Color(panelImage.color.r, panelImage.color.g, panelImage.color.b, alpha);
+    }
+    
+    void ShowWinner(string winner)
+    {
+        // Metin ve renk taraflara göre atanıyor
+        if (winner == "Bottom")
+        {
+            winnerText.text = "🔴 KIRMIZI KAZANDI!";
+            winnerText.color = Color.red;
+        }
+        else if (winner == "Top")
+        {
+            winnerText.text = "🔵 MAVİ KAZANDI!";
+            winnerText.color = Color.blue;
+        }
+
+        // Panel konumunu dışarıdan başlat
+        winnerPanel.anchoredPosition = new Vector2(0, -Screen.height);
+
+        // Yukarı çıkış animasyonu
+        winnerPanel.DOAnchorPosY(0, winnerPanelDuration).SetEase(Ease.OutBack);
     }
 }

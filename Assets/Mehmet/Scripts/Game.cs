@@ -4,6 +4,7 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 using DG.Tweening;
+using TMPro;
 
 public class Game : MonoBehaviour
 {
@@ -35,6 +36,11 @@ public class Game : MonoBehaviour
 
     public int calmWhite = 100;
     public int calmBlack = 100;
+    
+    public ComfortManager comfortManager;
+
+    public TextMeshProUGUI topComfortText;
+    public TextMeshProUGUI bottomComfortText;
 
 
     public IEnumerator Start()
@@ -148,6 +154,16 @@ public class Game : MonoBehaviour
             gameOver = false;
 
             SceneManager.LoadScene("Game");
+        }
+        UpdateComfortTexts();
+    }
+    
+    void UpdateComfortTexts()
+    {
+        if (comfortManager != null)
+        {
+            topComfortText.text = $"Top Comfort: {comfortManager.topComfort:F1}";
+            bottomComfortText.text = $"Bottom Comfort: {comfortManager.bottomComfort:F1}";
         }
     }
 

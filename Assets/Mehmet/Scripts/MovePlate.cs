@@ -37,14 +37,14 @@ public class MovePlate : MonoBehaviour
 
             // 💡 STRES AKTARIMI
             int stress = cp.Stress;
-            string side = cp.player == "white" ? "top" : "bottom";
+            string side = cp.player == "white" ? "bottom" : "top";
 
             // Debug log
             Debug.Log($"[{side.ToUpper()} tarafi] {stress} stres kaybetti, rakibe geçti.");
 
             FindAnyObjectByType<ComfortManager>().ApplyStress(side, stress);
 
-            Destroy(cp);
+            Destroy(cp.gameObject);
         }
 
         // Eski konumu boşalt
