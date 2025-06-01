@@ -9,7 +9,14 @@ public class Game : MonoBehaviour
 {
     [Header("DOTween Props")]
     [SerializeField] private float _duration = 0.2f;
+    [SerializeField] private float _boradSpawnIntervalDuration = 0.2f;
 
+
+
+    [Header("Chess Borad Props")]
+    [SerializeField] private GameObject _boardPrefab;
+    [SerializeField] private Color _whiteColor;
+    [SerializeField] private Color _blackColor;
 
 
     [Header("Chess Piece Props")]
@@ -28,9 +35,28 @@ public class Game : MonoBehaviour
     public int calmBlack = 100;
 
 
-    // Start is called before the first frame update
-    IEnumerator Start()
+    public IEnumerator Start()
     {
+        bool color = true;
+        for (int i = 0; i < 64; i++)
+        {
+
+            if (color)
+            {
+                _boardPrefab.GetComponent<SpriteRenderer>().color = _whiteColor;
+            }
+            else
+            {
+                _boardPrefab.GetComponent<SpriteRenderer>().color = _blackColor;
+            }
+            color = !color;
+            GameObject tile = Instantiate(_boardPrefab, new Vector3(0, 0, 0), Quaternion.identity);
+            tile.transform.position = new Vector3((i % 8) * _boardPrefab.transform.localScale.x, (i / 8) * _boardPrefab.transform.localScale.y, 0);
+            yield return new WaitForSeconds(_boradSpawnIntervalDuration);
+        }
+
+
+
         playerWhite = new Chessman[] {
         Create("white_pawn", 0, 1), Create("white_pawn", 1, 1), Create("white_pawn", 2, 1),
         Create("white_pawn", 3, 1), Create("white_pawn", 4, 1), Create("white_pawn", 5, 1),
@@ -255,8 +281,4 @@ public class Game : MonoBehaviour
         else if (calmBlack <= 0)
             Winner("white");
     }
-
-
-
-
 }
