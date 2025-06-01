@@ -12,7 +12,7 @@ public class MainMenuManager : MonoBehaviour
 
     public void PlayGame()
     {
-        SceneManager.LoadScene("GameScene");
+        SceneManager.LoadScene("Bekir");
     }
 
     public void HowToPlay()
@@ -22,10 +22,9 @@ public class MainMenuManager : MonoBehaviour
 
     public void QuitGame()
     {
-        Debug.Log("Oyundan çıkılıyor...");
         Application.Quit();
     }
-    
+
     public void Creator()
     {
         creatorPanel.SetActive(true); // Paneli aç
@@ -37,13 +36,13 @@ public class MainMenuManager : MonoBehaviour
         if (howToPlayPanel.activeSelf && Input.GetMouseButtonDown(0))
         {
             howToPlayPanel.SetActive(false);
-            
+
         }
-        
+
         if (creatorPanel.activeSelf && Input.GetMouseButtonDown(0))
         {
             creatorPanel.SetActive(false);
-            
+
         }
     }
 }
