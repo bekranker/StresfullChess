@@ -34,11 +34,20 @@ public class MovePlate : MonoBehaviour
             // Calm (sakinlik kasası) sistemi üzerinden hesaplama yap
             _gameScript.PieceCaptured(cp);
 
+            // 💡 STRES AKTARIMI
+            int stress = cp.Stress;
+            string side = cp.player == "white" ? "top" : "bottom";
+
+            // Debug log
+            Debug.Log($"[{side.ToUpper()} tarafı] {stress} stres kaybetti, rakibe geçti.");
+
+            FindObjectOfType<ComfortManager>().ApplyStress(side, stress);
+
             Destroy(cp);
         }
 
         // Eski konumu boşalt
-        _gameScript.SetPositionsEmpty(
+             _gameScript.SetPositionsEmpty(
             reference.GetXboard(),
             reference.GetYboard()
         );
@@ -53,7 +62,7 @@ public class MovePlate : MonoBehaviour
 
         // Sıra değiştir + stres hesapla
         _gameScript.NextTurn();
-        _gameScript.CalculateStress(); // Eğer NextTurn içinde çağrılmadıysa buraya eklersin
+        _gameScript.CalculateStress();
 
         // Tüm hareket karelerini sil
         reference.DestroyMovePlates();
