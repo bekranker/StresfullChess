@@ -6,6 +6,8 @@ using UnityEngine.UI;
 
 public class Game : MonoBehaviour
 {
+    [Header("Chess Piece Props")]
+    [SerializeField] private Transform _parent;
     public GameObject chesspiece;
 
     private GameObject[,] positions = new GameObject[8, 8];
@@ -15,16 +17,16 @@ public class Game : MonoBehaviour
     private string currentPlayer = "white";
 
     private bool gameOver = false;
-    
+
     public int calmWhite = 100;
     public int calmBlack = 100;
-    
+
 
 
     // Start is called before the first frame update
     void Start()
     {
-        
+
         playerWhite = new GameObject[] {Create("white_rook", 0, 0), Create("white_knight", 1, 0),
         Create("white_king", 4, 0), Create("white_bishop", 2, 0), Create("white_queen", 3, 0),
         Create("white_rook", 7, 0), Create("white_knight", 6, 0), Create("white_bishop", 5, 0),
@@ -38,8 +40,8 @@ public class Game : MonoBehaviour
         Create("black_pawn", 0, 6), Create("black_pawn", 1, 6), Create("black_pawn", 2, 6),
         Create("black_pawn", 5, 6), Create("black_pawn", 4, 6), Create("black_pawn", 3, 6),
         Create("black_pawn", 6, 6), Create("black_pawn", 7, 6)};
-    
-        for(int i=0;i < playerBlack.Length; i++)
+
+        for (int i = 0; i < playerBlack.Length; i++)
         {
             SetPosition(playerBlack[i]);
             SetPosition(playerWhite[i]);
@@ -50,10 +52,7 @@ public class Game : MonoBehaviour
     {
         GameObject obj = Instantiate(chesspiece, new Vector3(0, 0, -1), Quaternion.identity);
         Chessman cm = obj.GetComponent<Chessman>();
-        cm.name = name;
-        cm.SetXBoard(x);
-        cm.SetYBoard(y);
-        cm.Activate();
+        cm.InitChessMan(Resources.Load<ChessPieceData>("Scriptables/ChessPieces/" + name), x, y, name, this, _parent);
         return obj;
     }
 
@@ -92,7 +91,7 @@ public class Game : MonoBehaviour
 
     public void NextTurn()
     {
-        if(currentPlayer == "white")
+        if (currentPlayer == "white")
         {
             currentPlayer = "black";
         }
@@ -104,7 +103,7 @@ public class Game : MonoBehaviour
 
     public void Update()
     {
-        if(gameOver == true && Input.GetMouseButtonDown(0))
+        if (gameOver == true && Input.GetMouseButtonDown(0))
         {
             gameOver = false;
 
@@ -121,14 +120,14 @@ public class Game : MonoBehaviour
 
         GameObject.FindGameObjectWithTag("RestartText").GetComponent<Text>().enabled = true;
     }
-    
+
     public void CalculateStress()
     {
         // Önce tüm taşların stresini sıfırla
         foreach (GameObject piece in playerWhite)
-            if(piece != null) piece.GetComponent<Chessman>().stress = 0;
+            if (piece != null) piece.GetComponent<Chessman>().Stress = 0;
         foreach (GameObject piece in playerBlack)
-            if(piece != null) piece.GetComponent<Chessman>().stress = 0;
+            if (piece != null) piece.GetComponent<Chessman>().Stress = 0;
 
         // Her taş, diğer oyuncunun tüm taşları tarafından tehdit ediliyor mu kontrol et
         foreach (GameObject enemy in playerWhite)
@@ -139,85 +138,86 @@ public class Game : MonoBehaviour
             {
                 GameObject target = GetPosition(threat.x, threat.y);
                 if (target != null && target.GetComponent<Chessman>().player != "white")
-                    target.GetComponent<Chessman>().stress += 1;
+                    target.GetComponent<Chessman>().Stress += 1;
             }
         }
 
         foreach (GameObject enemy in playerBlack)
         {
-            
+
             if (enemy == null) continue;
             List<Vector2Int> threats = GetThreats(enemy);
             foreach (Vector2Int threat in threats)
             {
                 GameObject target = GetPosition(threat.x, threat.y);
                 if (target != null && target.GetComponent<Chessman>().player != "black")
-                    target.GetComponent<Chessman>().stress += 1;
+                    target.GetComponent<Chessman>().Stress += 1;
             }
         }
     }
-    public List<Vector2Int> GetThreats(GameObject piece) {
-    Chessman cm = piece.GetComponent<Chessman>();
-    List<Vector2Int> threatList = new List<Vector2Int>();
-
-    int x = cm.GetXboard();
-    int y = cm.GetYboard();
-
-    switch (cm.name)
+    public List<Vector2Int> GetThreats(GameObject piece)
     {
-        case "white_queen":
-        case "black_queen":
-            threatList.AddRange(GetLineThreats(x, y, 1, 0));
-            threatList.AddRange(GetLineThreats(x, y, 0, 1));
-            threatList.AddRange(GetLineThreats(x, y, 1, 1));
-            threatList.AddRange(GetLineThreats(x, y, -1, 0));
-            threatList.AddRange(GetLineThreats(x, y, 0, -1));
-            threatList.AddRange(GetLineThreats(x, y, -1, -1));
-            threatList.AddRange(GetLineThreats(x, y, -1, 1));
-            threatList.AddRange(GetLineThreats(x, y, 1, -1));
-            break;
-        case "white_rook":
-        case "black_rook":
-            threatList.AddRange(GetLineThreats(x, y, 1, 0));
-            threatList.AddRange(GetLineThreats(x, y, 0, 1));
-            threatList.AddRange(GetLineThreats(x, y, -1, 0));
-            threatList.AddRange(GetLineThreats(x, y, 0, -1));
-            break;
-        case "white_bishop":
-        case "black_bishop":
-            threatList.AddRange(GetLineThreats(x, y, 1, 1));
-            threatList.AddRange(GetLineThreats(x, y, 1, -1));
-            threatList.AddRange(GetLineThreats(x, y, -1, 1));
-            threatList.AddRange(GetLineThreats(x, y, -1, -1));
-            break;
-        case "white_knight":
-        case "black_knight":
-            int[,] offsets = { {1,2},{-1,2},{2,1},{2,-1},{1,-2},{-1,-2},{-2,1},{-2,-1}};
-            for (int i = 0; i < offsets.GetLength(0); i++)
-            {
-                int tx = x + offsets[i, 0];
-                int ty = y + offsets[i, 1];
-                if (PositionOnBoard(tx, ty)) threatList.Add(new Vector2Int(tx, ty));
-            }
-            break;
-        case "white_king":
-        case "black_king":
-            for(int dx=-1;dx<=1;dx++)
-                for(int dy=-1;dy<=1;dy++)
-                    if(dx != 0 || dy != 0)
-                        if(PositionOnBoard(x+dx,y+dy)) threatList.Add(new Vector2Int(x+dx,y+dy));
-            break;
-        case "white_pawn":
-            if(PositionOnBoard(x+1,y+1)) threatList.Add(new Vector2Int(x+1,y+1));
-            if(PositionOnBoard(x-1,y+1)) threatList.Add(new Vector2Int(x-1,y+1));
-            break;
-        case "black_pawn":
-            if(PositionOnBoard(x+1,y-1)) threatList.Add(new Vector2Int(x+1,y-1));
-            if(PositionOnBoard(x-1,y-1)) threatList.Add(new Vector2Int(x-1,y-1));
-            break;
-    }
+        Chessman cm = piece.GetComponent<Chessman>();
+        List<Vector2Int> threatList = new List<Vector2Int>();
 
-    return threatList;
+        int x = cm.GetXboard();
+        int y = cm.GetYboard();
+
+        switch (cm.name)
+        {
+            case "white_queen":
+            case "black_queen":
+                threatList.AddRange(GetLineThreats(x, y, 1, 0));
+                threatList.AddRange(GetLineThreats(x, y, 0, 1));
+                threatList.AddRange(GetLineThreats(x, y, 1, 1));
+                threatList.AddRange(GetLineThreats(x, y, -1, 0));
+                threatList.AddRange(GetLineThreats(x, y, 0, -1));
+                threatList.AddRange(GetLineThreats(x, y, -1, -1));
+                threatList.AddRange(GetLineThreats(x, y, -1, 1));
+                threatList.AddRange(GetLineThreats(x, y, 1, -1));
+                break;
+            case "white_rook":
+            case "black_rook":
+                threatList.AddRange(GetLineThreats(x, y, 1, 0));
+                threatList.AddRange(GetLineThreats(x, y, 0, 1));
+                threatList.AddRange(GetLineThreats(x, y, -1, 0));
+                threatList.AddRange(GetLineThreats(x, y, 0, -1));
+                break;
+            case "white_bishop":
+            case "black_bishop":
+                threatList.AddRange(GetLineThreats(x, y, 1, 1));
+                threatList.AddRange(GetLineThreats(x, y, 1, -1));
+                threatList.AddRange(GetLineThreats(x, y, -1, 1));
+                threatList.AddRange(GetLineThreats(x, y, -1, -1));
+                break;
+            case "white_knight":
+            case "black_knight":
+                int[,] offsets = { { 1, 2 }, { -1, 2 }, { 2, 1 }, { 2, -1 }, { 1, -2 }, { -1, -2 }, { -2, 1 }, { -2, -1 } };
+                for (int i = 0; i < offsets.GetLength(0); i++)
+                {
+                    int tx = x + offsets[i, 0];
+                    int ty = y + offsets[i, 1];
+                    if (PositionOnBoard(tx, ty)) threatList.Add(new Vector2Int(tx, ty));
+                }
+                break;
+            case "white_king":
+            case "black_king":
+                for (int dx = -1; dx <= 1; dx++)
+                    for (int dy = -1; dy <= 1; dy++)
+                        if (dx != 0 || dy != 0)
+                            if (PositionOnBoard(x + dx, y + dy)) threatList.Add(new Vector2Int(x + dx, y + dy));
+                break;
+            case "white_pawn":
+                if (PositionOnBoard(x + 1, y + 1)) threatList.Add(new Vector2Int(x + 1, y + 1));
+                if (PositionOnBoard(x - 1, y + 1)) threatList.Add(new Vector2Int(x - 1, y + 1));
+                break;
+            case "black_pawn":
+                if (PositionOnBoard(x + 1, y - 1)) threatList.Add(new Vector2Int(x + 1, y - 1));
+                if (PositionOnBoard(x - 1, y - 1)) threatList.Add(new Vector2Int(x - 1, y - 1));
+                break;
+        }
+
+        return threatList;
     }
     public List<Vector2Int> GetLineThreats(int x, int y, int dx, int dy)
     {
@@ -236,7 +236,7 @@ public class Game : MonoBehaviour
         if (captured == null) return;
 
         Chessman cm = captured.GetComponent<Chessman>();
-        int loss = cm.baseValue + cm.stress;
+        int loss = cm.BaseValue + cm.Stress;
 
         if (cm.player == "white")
             calmWhite -= loss;
@@ -249,7 +249,7 @@ public class Game : MonoBehaviour
             Winner("white");
     }
 
-    
-   
+
+
 
 }

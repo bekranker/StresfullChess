@@ -535,6 +535,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4e75ea60a24b4734a8693ed45df6b9be, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _parent: {fileID: 1606879902}
   chesspiece: {fileID: 744378045863390000, guid: ed9fddb9f6d79d344ae4170a1ed4851f, type: 3}
   calmWhite: 100
   calmBlack: 100
