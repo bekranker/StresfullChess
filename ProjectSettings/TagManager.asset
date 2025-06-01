@@ -47,5 +47,11 @@ TagManager:
   - name: Board
     uniqueID: 3303297363
     locked: 0
+  - name: Piece
+    uniqueID: 2145641515
+    locked: 0
+  - name: Piece Canvas
+    uniqueID: 2712902325
+    locked: 0
   m_RenderingLayers:
   - Default
