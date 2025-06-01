@@ -1,6 +1,9 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
+
 
 public class Chessman : MonoBehaviour
 {
@@ -10,12 +13,17 @@ public class Chessman : MonoBehaviour
     private int xBoard = -1;
     private int yBoard = -1;
 
-    private string player;
+    public string player;
+    
+    public float tileSpacing = 0.66f;
+    public Vector2 boardOffset = new Vector2(-2.3f, -2.3f);
 
     public Sprite black_queen, black_knight, black_bishop, black_king, black_rook, black_pawn;
     public Sprite white_queen, white_knight, white_bishop, white_king, white_rook, white_pawn;
+    
+    public TextMeshProUGUI stressText;
 
-    public void Activate()
+    public void Activate()  
     {
         controller = GameObject.FindGameObjectWithTag("GameController");
 
@@ -38,18 +46,14 @@ public class Chessman : MonoBehaviour
             case "white_pawn": this.GetComponent<SpriteRenderer>().sprite = white_pawn; player = "white"; break;
 
         }
+        // Activate() fonksiyonunun sonuna eklenmeli:
+        SetBaseValue();
     }
 
     public void SetCoords()
     {
-        float x = xBoard;
-        float y = yBoard;
-
-        x *= 0.66f;
-        y *= 0.66f;
-
-        x += -2.3f;
-        y += -2.3f;
+        float x = xBoard * tileSpacing + boardOffset.x;
+        float y = yBoard * tileSpacing + boardOffset.y;
 
         this.transform.position = new Vector3(x, y, -1.0f);
     }
@@ -230,12 +234,8 @@ public class Chessman : MonoBehaviour
         float x = matrixX;
         float y = matrixY;
 
-        x *= 0.66f;
-        y *= 0.66f;
-
-        x += -2.3f;
-        y += -2.3f;
-
+        x = x * tileSpacing + boardOffset.x;
+        y = y * tileSpacing + boardOffset.y;
         GameObject mp = Instantiate(movePlate, new Vector3(x, y, -3.0f), Quaternion.identity);
 
         MovePlate mpScript = mp.GetComponent<MovePlate>();
@@ -248,11 +248,8 @@ public class Chessman : MonoBehaviour
         float x = matrixX;
         float y = matrixY;
 
-        x *= 0.66f;
-        y *= 0.66f;
-
-        x += -2.3f;
-        y += -2.3f;
+        x = x * tileSpacing + boardOffset.x;
+        y = y * tileSpacing + boardOffset.y;
 
         GameObject mp = Instantiate(movePlate, new Vector3(x, y, -3.0f), Quaternion.identity);
 
@@ -260,5 +257,44 @@ public class Chessman : MonoBehaviour
         mpScript.attack = true;
         mpScript.SetReference(gameObject);
         mpScript.SetCoords(matrixX, matrixY);
+    }
+    // Eklenen değişkenler
+    public int stress = 0;
+    public int baseValue = 1;
+
+// Base değerleri otomatik ayarlayan fonksiyon
+    public void SetBaseValue()
+    {
+        switch (name)
+        {
+            case "white_pawn":
+            case "black_pawn":
+                baseValue = 1; break;
+            case "white_knight":
+            case "black_knight":
+            case "white_bishop":
+            case "black_bishop":
+                baseValue = 3; break;
+            case "white_rook":
+            case "black_rook":
+                baseValue = 5; break;
+            case "white_queen":
+            case "black_queen":
+                baseValue = 9; break;
+            case "white_king":
+            case "black_king":
+                baseValue = 10; break;
+        }
+    }
+
+    private void Update()
+    {
+        UpdateStressDisplay();
+        
+    }
+    
+    public void UpdateStressDisplay()
+    {
+        stressText.text = stress.ToString();
     }
 }

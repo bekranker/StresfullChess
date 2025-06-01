@@ -25,27 +25,41 @@ public class MovePlate : MonoBehaviour
     {
         controller = GameObject.FindGameObjectWithTag("GameController");
 
-        if(attack)
-        {
-            GameObject cp = controller.GetComponent<Game>().GetPosition(matrixX, matrixY);
+        Game gameScript = controller.GetComponent<Game>();
 
-            if (cp.name == "white_king") controller.GetComponent<Game>().Winner("black");
-            if (cp.name == "black_king") controller.GetComponent<Game>().Winner("white");
+        if (attack)
+        {
+            GameObject cp = gameScript.GetPosition(matrixX, matrixY);
+
+            // Eğer rakip şah yeniyorsa hemen bitir
+            if (cp.name == "white_king") gameScript.Winner("black");
+            if (cp.name == "black_king") gameScript.Winner("white");
+
+            // Calm (sakinlik kasası) sistemi üzerinden hesaplama yap
+            gameScript.PieceCaptured(cp);
 
             Destroy(cp);
         }
 
-        controller.GetComponent<Game>().SetPositionsEmpty(reference.GetComponent<Chessman>().GetXboard(),
-            reference.GetComponent<Chessman>().GetYboard());
+        // Eski konumu boşalt
+        gameScript.SetPositionsEmpty(
+            reference.GetComponent<Chessman>().GetXboard(),
+            reference.GetComponent<Chessman>().GetYboard()
+        );
 
+        // Yeni konumu güncelle
         reference.GetComponent<Chessman>().SetXBoard(matrixX);
         reference.GetComponent<Chessman>().SetYBoard(matrixY);
         reference.GetComponent<Chessman>().SetCoords();
 
-        controller.GetComponent<Game>().SetPosition(reference);
+        // Yeni pozisyonu kaydet
+        gameScript.SetPosition(reference);
 
-        controller.GetComponent<Game>().NextTurn();
+        // Sıra değiştir + stres hesapla
+        gameScript.NextTurn();
+        gameScript.CalculateStress(); // Eğer NextTurn içinde çağrılmadıysa buraya eklersin
 
+        // Tüm hareket karelerini sil
         reference.GetComponent<Chessman>().DestroyMovePlates();
     }
 
